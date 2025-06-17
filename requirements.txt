@@ -1,0 +1,4 @@
+dotenv 
+serpapi 
+pyowm 
+google-search-results
