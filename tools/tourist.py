@@ -146,7 +146,7 @@ def search_restaurent(
     return results 
 
 @tool 
-def search_places_and_tourist_spots(
+def get_distances(
     type: str,
     api_key: Optional[str] = None,
     q: Optional[str] = None,
@@ -163,7 +163,11 @@ def search_places_and_tourist_spots(
     output: Optional[str] = "json"
 ):
     """
-    Searches Google Maps using SerpAPI to find places or specific locations (e.g., tourist spots).
+    Retrieves detailed place data from Google Maps using SerpAPI to assist in route planning and itinerary optimization.
+
+    This function is **not** intended for discovering or searching for new places. Instead, it is used **after** places have already been identified. 
+    Its primary purpose is to fetch structured data (e.g., coordinates, place IDs, metadata) needed to calculate distances between places 
+    and create an efficient travel itinerary.
 
     Parameters
     ----------
@@ -232,6 +236,7 @@ def search_places_and_tourist_spots(
     if async_mode: params["async"] = "true"
     if zero_trace: params["zero_trace"] = "true"
 
+    print('Params' , params)
     search = GoogleSearch(params)
     results = search.get_dict()
 
@@ -280,6 +285,28 @@ def search_local_events_news(
 
     search = GoogleSearch(params)
     return search.get_dict()
+
+def extract_top_flights(response: dict, limit: int = 15) -> list:
+    flights_data = response.get("best_flights", [])
+    top_flights = []
+
+    for flight_group in flights_data[:limit]:
+        flight = flight_group["flights"][0]  # assuming one flight per group
+        top_flights.append({
+            "flight_number": flight.get("flight_number"),
+            "airline": flight.get("airline"),
+            "departure_time": flight.get("departure_airport", {}).get("time"),
+            "departure_airport": flight.get("departure_airport", {}).get("name"),
+            "arrival_time": flight.get("arrival_airport", {}).get("time"),
+            "arrival_airport": flight.get("arrival_airport", {}).get("name"),
+            "duration_minutes": flight.get("duration"),
+            "price_inr": flight_group.get("price"),
+            "travel_class": flight.get("travel_class"),
+            "carbon_emissions_g": flight_group.get("carbon_emissions", {}).get("this_flight"),
+            "airline_logo": flight.get("airline_logo"),
+        })
+
+    return top_flights
 
 @tool 
 def search_google_flights(
@@ -361,6 +388,79 @@ def search_google_flights(
         params["include_airlines"] = ",".join(include_airlines)
     if exclude_conns:
         params["exclude_conns"] = ",".join(exclude_conns)
+
+    search = GoogleSearch(params)
+    return search.get_dict()
+
+
+@tool
+def search_famous_places(
+    query: str,
+    location: Optional[str] = None,
+    gl: str = "us",
+    hl: str = "en",
+    cr: Optional[str] = None,
+    lr: Optional[str] = None,
+    tbm: Optional[str] = None,
+    tbs: Optional[str] = None,
+    safe: str = "active",
+    num: int = 10,
+    start: int = 0,
+    device: str = "desktop",
+    no_cache: bool = True,
+    filter: int = 1,
+    api_key: str = os.getenv("SERP_API_KEY")
+) -> dict:
+    """
+    Use this tool to search for famous places to visit based on user preference.
+    This wraps SerpApi's Google Search engine to return search results for travel, tourism,
+    local attractions, etc., using location-aware and safe-filtered queries.
+
+    Args:
+        query (str): The search query (e.g., "best places to visit in Rome").
+        location (Optional[str]): Geographic location to simulate the user's origin.
+        gl (str): Country code for the search (default is 'us').
+        hl (str): Language code (default is 'en').
+        cr (Optional[str]): Restrict search results to specific countries.
+        lr (Optional[str]): Restrict search results to specific languages.
+        tbm (Optional[str]): Type of search (e.g., 'nws', 'isch').
+        tbs (Optional[str]): Advanced search filters (e.g., time ranges).
+        safe (str): Safe search setting ('active' or 'off').
+        num (int): Number of results to fetch.
+        start (int): Pagination offset.
+        device (str): Device type for result rendering ('desktop', 'mobile', or 'tablet').
+        no_cache (bool): Force fresh search if True.
+        filter (int): Enable or disable similar/omitted results filter (1 = on).
+        api_key (str): Your SerpApi key.
+
+    Returns:
+        dict: A dictionary of search results from SerpApi.
+    """
+
+    params = {
+        "engine": "google",
+        "q": query,
+        "gl": gl,
+        "hl": hl,
+        "safe": safe,
+        "num": num,
+        "start": start,
+        "device": device,
+        "no_cache": str(no_cache).lower(),
+        "filter": filter,
+        "api_key": api_key,
+    }
+
+    if location:
+        params["location"] = location
+    if cr:
+        params["cr"] = cr
+    if lr:
+        params["lr"] = lr
+    if tbm:
+        params["tbm"] = tbm
+    if tbs:
+        params["tbs"] = tbs
 
     search = GoogleSearch(params)
     return search.get_dict()

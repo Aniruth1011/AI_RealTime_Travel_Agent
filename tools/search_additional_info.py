@@ -106,10 +106,10 @@ def tavily_search(query: str) -> dict:
     Returns:
     --------
     dict
-        {
+        {{
             "places_to_visit": [list of popular or highly-rated spots],
             "places_to_avoid": [list of poorly reviewed or potentially unsafe places]
-        }
+        }}
 
     Notes:
     ------
@@ -130,7 +130,6 @@ def tavily_search(query: str) -> dict:
     search_results = tavily_search_tool.invoke(query)
     combined_content = "\n\n".join([doc.get("content", "") for doc in search_results if "content" in doc])
 
-    # 2. Use LLM to extract structured itinerary insights
     llm = ChatGroq(model="mixtral-8x7b-32768", temperature=0)
 
     prompt_template = """
@@ -144,22 +143,24 @@ def tavily_search(query: str) -> dict:
     ONLY extract proper names (e.g. landmarks, hotels, areas, attractions). No generic terms.
 
     Return this as valid JSON:
-    {
+    {{
         "places_to_visit": [...],
         "places_to_avoid": [...]
-    }
+    }}
 
     Web Results:
     -------------
     {web_content}
     """
 
+    parser = JsonOutputParser()
+
     prompt = PromptTemplate(
         input_variables=["web_content"],
-        template=prompt_template
+        template=prompt_template , 
+    partial_variables={"format_instruction":parser.get_format_instructions()},
     )
 
-    parser = JsonOutputParser()
     chain = prompt | llm | parser
 
     result = chain.invoke({"web_content": combined_content})

@@ -10,18 +10,40 @@ from langgraph.prebuilt import ToolNode
 from langgraph.prebuilt import tools_condition
 
 from langgraph.checkpoint.memory import MemorySaver
+from langchain_core.messages import AIMessage ,  HumanMessage
+
+
+from pprint import pprint 
 
 from langchain_groq import ChatGroq
+from langchain_google_genai import ChatGoogleGenerativeAI
+
 
 tools = [add  , multiply , calculate_total_cost , calculate_daily_budget , get_exchange_rate , convert_currency , create_itenary , reddit_search , tavily_search ,
          search_restaurent , search_places_and_tourist_spots , search_local_events_news , search_google_flights , get_current_weather , get_weather_forecast ]
+
+from dotenv import load_dotenv 
+import os 
+load_dotenv()
+os.environ["GOOGLE_API_KEY"] = os.getenv("GOOGLE_API_KEY")
+os.environ["GOOGLE_CSE_ID"] = os.getenv("GOOGLE_CSE_ID")
+os.environ["SERP_API_KEY"] = os.getenv("SERP_API_KEY")
+os.environ["OPEN_WEATHER_KEY"] = os.getenv("OPEN_WEATHER_KEY")
+os.environ["TAVILY_API_KEY"] = os.getenv("TAVILY_API_KEY")
+os.environ["GROQ_API_KEY"] = os.getenv("GROQ_API_KEY")
+os.environ["MODEL_TYPE"] = os.getenv("MODEL_TYPE")
+os.environ["GEMINI_API_KEY"] = os.getenv("GEMINI_API_KEY")
 
 def INIT_LLM(state:MessagesState):
     
     user_question=state["messages"]
 
 
-    llm = ChatGroq(model = "qwen-qwq-32b")   
+    if os.environ["MODEL_TYPE"].lower() == "groq":
+        llm = ChatGroq(model = "qwen/qwen3-32b" , reasoning_format = "hidden")   
+    elif os.environ["MODEL_TYPE"].lower() == "google":
+        llm = ChatGoogleGenerativeAI(model="gemini-2.0-flash-001")
+
 
     prompt = """
     You are **Atlas**, an expert **AI Travel Agent & Expense Planner**.
@@ -117,11 +139,12 @@ def INIT_LLM(state:MessagesState):
     """
 
 
-    query = prompt + user_question 
+    print(user_question)
+    query =  prompt + user_question[-1].content
 
     response = llm.invoke(query)
 
-    return response     
+    return {"messages": user_question + [AIMessage(content=response.content)]}
 
 def create_react_agent():
 
@@ -147,7 +170,43 @@ def create_react_agent():
     return react_graph 
 
 
+# agent = create_react_agent()
 
+# config={"configurable": {"thread_id": "1"}}
 
+# # result = agent.invoke( {"messages":["I want to go to Chennai."]} , config=config , stream_mode="values" )
 
- 
+# # print("***" , result)
+
+# chat_history = []
+# log_file_path = "chat_log.txt"
+
+# while True:
+
+#     user_input = input("You: ")
+#     if user_input.lower() in ['exit', 'quit']:
+#         print("Exiting chat.")
+#         break
+    
+#     if chat_history == []:
+#         chat_history.append(HumanMessage(user_input))
+
+#     result = agent.invoke(
+#         {"messages": chat_history},
+#         config=config,
+#         stream_mode="values"
+#     )
+
+#     ai_response = result["messages"][-1].content
+
+#     chat_history.append(HumanMessage(content=user_input))
+
+#     # Step 6: Pretty print the response to user
+#     print("\nAssistant:")
+#     pprint(ai_response)
+#     print("\n")
+
+#     with open(log_file_path, "a", encoding="utf-8") as f:
+#         f.write("You: " + user_input.strip() + "\n")
+#         f.write("Assistant: " + ai_response.strip() + "\n\n")
+
