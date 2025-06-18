@@ -131,14 +131,14 @@ def create_react_agent():
     builder.add_node("INIT_LLM",INIT_LLM) 
     builder.add_edge(START,"INIT_LLM")
 
-    builder.add_node("TOOLS",ToolNode(tools))
+    builder.add_node("tools",ToolNode(tools))
 
     builder.add_conditional_edges(
         "INIT_LLM",
         tools_condition,
     )
 
-    builder.add_edge("TOOLS","INIT_LLM") 
+    builder.add_edge("tools","INIT_LLM") 
 
     memory = MemorySaver()
 
