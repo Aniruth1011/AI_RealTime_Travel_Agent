@@ -16,12 +16,13 @@ def main():
 
         message=[HumanMessage(content=user_input)]
 
-        state.messages.append({"messages" : message})
 
         try:
-            state = agent.step(state)
-            last_response = state.messages[-1]["content"]
-            print(f"Agent: {last_response}")
+            # state = agent.step(state)
+            # last_response = state.messages[-1]["content"]
+            # print(f"Agent: {last_response}")
+            response = agent.invoke({"messages":message})
+            print("Agent : " ,  response)
         except Exception as e:
             print(f"Error: {e}", file=sys.stderr)
 
