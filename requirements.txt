@@ -1,4 +1,6 @@
 dotenv 
 serpapi 
 pyowm 
-google-search-results
+google-search-results 
+langgraph 
+langchain_groq 

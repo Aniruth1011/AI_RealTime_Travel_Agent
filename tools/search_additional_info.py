@@ -6,7 +6,7 @@ from langchain_community.tools.reddit_search.tool import RedditSearchSchema
 from dotenv import load_dotenv 
 from langchain_groq import ChatGroq
 from langchain.prompts import PromptTemplate
-from langchain.output_parsers import JsonOutputParser
+from langchain_core.output_parsers import JsonOutputParser
 from langchain_tavily import TavilySearch
 
 

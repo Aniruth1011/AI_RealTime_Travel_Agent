@@ -3,7 +3,7 @@ from typing import Union  , List , Optional , Dict
 from datetime import date, datetime
 from langchain_groq import ChatGroq 
 from langchain.prompts import PromptTemplate
-from langchain_community.output_parsers import JsonOutputParser 
+from langchain_core.output_parsers import JsonOutputParser 
 import json 
 
 @tool 
