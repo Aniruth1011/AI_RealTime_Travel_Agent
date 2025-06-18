@@ -6,7 +6,7 @@ from langchain.prompts import PromptTemplate
 from langchain_community.output_parsers import JsonOutputParser 
 import json 
 
-
+@tool 
 def create_itenary(
     start_date: Union[str, date, datetime],
     end_date: Union[str, date, datetime],

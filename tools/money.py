@@ -1,5 +1,6 @@
 from langchain_community.utilities import SerpAPIWrapper 
 from langchain_core.tools import tool 
+import os 
 
 @tool 
 def get_exchange_rate(client_country: str, destination_country: str):

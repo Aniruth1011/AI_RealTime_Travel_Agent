@@ -309,7 +309,7 @@ def search_google_flights(
     exclude_conns: Optional[List[str]] = None,
     show_hidden: bool = False,
     no_cache: bool = True,
-    api_key: str = "YOUR_SERPAPI_KEY"
+    api_key: str = os.getenv("SERP_API_KEY")
 ) -> dict:
     """
     Search flights using SerpApi's Google Flights engine.
