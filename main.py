@@ -1,4 +1,5 @@
 from agent import create_react_agent  
+from langchain_core.messages import HumanMessage 
 from langgraph.graph import MessagesState  
 import sys
 
@@ -13,7 +14,9 @@ def main():
             print("Exiting.")
             break
 
-        state.messages.append({"role": "user", "content": user_input})
+        message=[HumanMessage(content=user_input)]
+
+        state.messages.append({"messages" : message})
 
         try:
             state = agent.step(state)
