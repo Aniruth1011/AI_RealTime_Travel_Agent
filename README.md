@@ -1,4 +1,4 @@
-    # 🌍 AI Travel Agent & Expense Planner
+    🌍 AI Travel Agent & Expense Planner
 
 **Purpose:**  
 Plan your trips smarter and faster — anywhere in the world. This AI-powered travel assistant provides **real-time data**, builds **custom itineraries**, and calculates your **trip expenses** with ease.
